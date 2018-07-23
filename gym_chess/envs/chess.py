@@ -229,6 +229,51 @@ class ChessEnv(gym.Env):
 
 	def _render(self, mode='human', close=False):
 		return ChessEnv.render_board(self.state, mode=mode, close=close)
+	
+	@staticmethod
+	def to_pieces(inp):
+        
+		pieces = {
+		1:'R',
+		2:'N',
+		3:'B',
+		4:'K',
+		5:'Q',
+		6:'B',
+		7:'N',
+		8:'R'
+	}
+    
+		if abs(inp) < 1 or abs(inp) > 16:
+			return 'X'
+		if abs(inp) > 8 and inp > 0:
+			return 'P'
+		elif abs(inp) > 8 and inp < 0:
+			return 'p'
+		elif inp > 0:
+			return str.upper(str(pieces[abs(inp)]))
+		else:
+			return str.lower(str(pieces[abs(inp)]))
+    
+	def _FEN(env):
+		outp = ""
+		state = env.state['board']
+		for i in range(7,-1,-1):
+			numofzeroes = 0
+			for j in range(7,-1,-1):
+				if(state[i,j] == 0):
+					numofzeroes += 1
+				else: # non empty
+					if numofzeroes != 0:
+						outp += str(numofzeroes)
+						numofzeroes = 0
+					outp += env.to_pieces(state[i,j])
+			if numofzeroes != 0:
+				outp += str(numofzeroes)
+				numofzeroes = 0
+			outp += ('/')
+		outp = outp[:-1] + " w KQkq - 0 1" #remove trailing '/' and add stuff
+		return(outp)
 
 	@staticmethod
 	def render_board(state, mode='human', close=False):
